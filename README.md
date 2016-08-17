@@ -27,21 +27,19 @@ Configuration
 
 ## Virtual Hub installation(Linux)
 
-* Unzip the compressed file on **hub/** folder and copy the binary to the directory **/usr/sbin/** and make it executable.<br />
-    ``` cp 64bits/VirtualHub /usr/sbin/ ```<br />
-    ``` chmod +x /usr/sbin/VirtualHub ```<br />
-* Copy the file **startup_script/yVirtualHub** to **/etc/init.d/** and make it executable.<br />
-    ``` cp startup_script/yVirtualHub /etc/init.d/ ```<br />
-    ``` chmod +x /etc/init.d/yVirtualHub ```<br />
-* Set this service to be started at boot **(optional)**<br />
-    ``` update-rc.d yVirtualHub defaults ```
-* Restart the system.
+ Unzip the compressed file on **hub/** folder and copy the binary to the directory **/usr/sbin/** and make it executable.<br />
+    ``` cp 64bits/VirtualHub /usr/sbin/ ``` and ``` chmod +x /usr/sbin/VirtualHub ```<br /><br />
+ Copy the file **startup_script/yVirtualHub** to **/etc/init.d/** and make it executable.<br />
+    ``` cp startup_script/yVirtualHub /etc/init.d/ ``` and ``` chmod +x /etc/init.d/yVirtualHub ```<br /><br />
+ Set this service to be started at boot **(optional)**<br />
+    ``` update-rc.d yVirtualHub defaults ```<br /><br />
+ Restart the system.<br />
 
 ### Optional
-* You need to create a new **udev** rule to run the VirtualHub without root access.
-* Copy the **51-yoctopuce_all.rules** from **udev_conf** folder of the archive to **/etc/udev/rules.d/**<br />
- ``` cp udev_conf/1-yoctopuce_all.rules /etc/udev/rules.d/```
-* Restart the system.
+ You need to create a new **udev** rule to run the VirtualHub without root access.<br /><br />
+ Copy the **51-yoctopuce_all.rules** from **udev_conf** folder of the archive to **/etc/udev/rules.d/**<br />
+ ``` cp udev_conf/1-yoctopuce_all.rules /etc/udev/rules.d/```<br /><br />
+ Restart the system.
 
 Credits
 -------
