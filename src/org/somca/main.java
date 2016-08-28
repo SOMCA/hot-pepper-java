@@ -9,6 +9,7 @@ public class main {
     public static void main(String[] args)
     {
         YoctoDevice myYocto = new YoctoDevice();
-        myYocto.run();
+        System.out.println(myYocto.ToString());
+        //myYocto.run();
     }
 }

@@ -11,6 +11,8 @@ import java.util.List;
 public class YoctoDevice {
 
     private YCurrent yoctoCurrent;
+    private String deviceId;
+    private String deviceName;
     private String deviceSerialNum;
     private String dcSerial;
 
@@ -45,6 +47,8 @@ public class YoctoDevice {
         }
         try {
             deviceSerialNum = yoctoCurrent.module().get_serialNumber();
+            deviceName = yoctoCurrent.module().getLogicalName();
+            deviceId = yoctoCurrent.module().getHardwareId();
             dcSerial = deviceSerialNum + ".current1";
             System.out.println("DC sensor of the device : " + dcSerial);
         } catch (YAPI_Exception ex) {
@@ -79,7 +83,11 @@ public class YoctoDevice {
      */
     public void setFinished(){this.isFinished = true;}
 
-    public String ToString(){return null;}
+    public String ToString(){
+        return "Device ID : "+ deviceId +"\n"
+                +"Device Name : "+ deviceName +"\n"
+                +"Serial Numb : "+ deviceSerialNum +"\n";
+    }
 
 
 }
