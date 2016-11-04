@@ -1,4 +1,4 @@
-package org.somca.yoctamp;
+package org.somca.api;
 
 import com.yoctopuce.YoctoAPI.*;
 
