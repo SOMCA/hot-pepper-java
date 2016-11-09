@@ -1,26 +1,43 @@
+/**
+ * Hot-Pepper - Energy Measurements
+ *     Copyright (C)  2016   Université du Québec à Montréal (UQAM) -  INRIA  - University of Lille
+ *
+ *     Authors: Mehdi Ait younes <overpex@gmail.com>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.somca.api;
 
 import com.yoctopuce.YoctoAPI.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Created by overpex on 10/08/16.
- */
 public class YoctoDevice {
 
     private YCurrent yoctoCurrent;
+
     private String deviceId;
     private String deviceName;
     private String deviceSerialNum;
     private String dcSerial;
 
-    private List<Double> data;
+    public LinkedHashMap<Long,Double> measurementData;
     private boolean isFinished = false;
+    private long initTime;
 
     public YoctoDevice(){
-
         try {
             // Setup the API to use local VirtualHub
             YAPI.RegisterHub("127.0.0.1");
@@ -31,14 +48,12 @@ public class YoctoDevice {
         }
 
         initVar();
-
     }
 
     /*
     Initialize both the YCurrent and the serial number of the device connected
      */
-    private void initVar()
-    {
+    private void initVar() {
         yoctoCurrent = YCurrent.FirstCurrent();
 
         if (yoctoCurrent == null) {
@@ -50,6 +65,7 @@ public class YoctoDevice {
             deviceName = yoctoCurrent.module().getLogicalName();
             deviceId = yoctoCurrent.module().getHardwareId();
             dcSerial = deviceSerialNum + ".current1";
+            yoctoCurrent.set_reportFrequency("75/s");
             System.out.println("DC sensor of the device : " + dcSerial);
         } catch (YAPI_Exception ex) {
             System.out.println("No serial number : Please check USB cable !");
@@ -60,34 +76,33 @@ public class YoctoDevice {
     /*
     Run the measures
      */
-    public void run()
-    {
-        data = new ArrayList<Double>();
+    public void run() throws YAPI_Exception {
+        measurementData = new LinkedHashMap<Long, Double>();
         YCurrent dcCurrent = YCurrent.FindCurrent(dcSerial);
-        while (!isFinished)
-        {
-            try {
-                data.add(dcCurrent.get_currentValue());
-                System.out.println(dcCurrent.get_currentValue());
-                //YAPI.Sleep(500);
-            } catch (YAPI_Exception ex) {
-                System.err.println("Error during measurement : " + ex.getLocalizedMessage());
-                System.exit(1);
-            }
+        initTime = new Date().getTime();
+        for (;;) {
+            long tmpTime = new Date().getTime() - initTime;
+            System.out.println(String.format("Time %s, Value %s", tmpTime, dcCurrent.get_currentValue()));
+            measurementData.put(tmpTime,dcCurrent.get_currentValue());
+            if (isFinished) break;
+            YAPI.Sleep(100);
         }
-        System.out.println("Measurements "+"\u001B[32m[Done]");
+        System.out.print("Measurements "+ConsoleColor.GREEN+"[Done]\n"+ConsoleColor.RESET);
     }
 
     /*
-    Set the is finished var to true in order to end the measurements.
+    Stop the measurement
      */
     public void setFinished(){this.isFinished = true;}
 
-    public String ToString(){
+    public LinkedHashMap<Long, Double> getMeasurementData() {
+        return measurementData;
+    }
+
+    public String toString(){
         return "Device ID : "+ deviceId +"\n"
                 +"Device Name : "+ deviceName +"\n"
                 +"Serial Numb : "+ deviceSerialNum +"\n";
     }
-
 
 }
