@@ -21,13 +21,14 @@
 package org.somca;
 
 import com.yoctopuce.YoctoAPI.YAPI_Exception;
+import org.somca.adb.AdbWrapper;
 import org.somca.api.CsvUtils;
 import org.somca.api.YoctoDevice;
 import org.somca.scenarios.CalabashScenarios;
 import static java.lang.System.exit;
 
 public class main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         int nRun = 1;
 
@@ -35,6 +36,16 @@ public class main {
         String argApkPath = "$APK_PATH";
 
         // ADB init ...
+        AdbWrapper adbInstance = new AdbWrapper();
+
+        // Use root communication
+        adbInstance.asRoot();
+        Thread.sleep(500);
+
+        // Turn charge off
+        adbInstance.chargeSwitch(0);
+        Thread.sleep(500);
+        System.out.println("ADB charge disabled !");
 
         // Server Running ...
 
@@ -65,6 +76,10 @@ public class main {
 
             nRun--;
         }
+
+        adbInstance.chargeSwitch(0);
+        Thread.sleep(500);
+        System.out.println("ADB charge disabled !");
 
         System.out.println("Experiments finished");
         exit(0);
