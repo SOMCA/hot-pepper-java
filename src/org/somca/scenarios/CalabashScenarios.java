@@ -2,7 +2,7 @@
  * Hot-Pepper - Energy Measurements
  *     Copyright (C)  2016   Université du Québec à Montréal (UQAM) -  INRIA  - University of Lille
  *
- *     Authors: Mehdi Ait younes <overpex@gmail.com>
+ *     Authors: Mehdi Ait younes (overpex) <overpex@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -20,8 +20,6 @@
 
 package org.somca.scenarios;
 
-import org.somca.api.YoctoDevice;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -38,14 +36,12 @@ public class CalabashScenarios implements Runnable{
     private String scenariosPath;
     private String appPath;
     private String logPath;
-    private YoctoDevice yoctoMeasurement;
 
 
-    public CalabashScenarios(String path, String app, YoctoDevice yocto){
+    public CalabashScenarios(String path, String app){
         this.scenariosPath = path;
         this.appPath = app;
         this.logPath = scenariosPath+"/logtest";
-        this.yoctoMeasurement = yocto;
     }
 
     // Write log file
@@ -57,9 +53,6 @@ public class CalabashScenarios implements Runnable{
             e.printStackTrace();
         }
         System.out.println("Log file generated");
-
-        // Stop the Yocto Measurements
-        yoctoMeasurement.setFinished();
 
     }
 

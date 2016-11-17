@@ -2,7 +2,7 @@
  * Hot-Pepper - Energy Measurements
  *     Copyright (C)  2016   Université du Québec à Montréal (UQAM) -  INRIA  - University of Lille
  *
- *     Authors: Mehdi Ait younes <overpex@gmail.com>
+ *     Authors: Mehdi Ait younes (overpex) <overpex@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -18,7 +18,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.somca.api;
+package org.somca.utils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -28,9 +28,9 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class CsvUtils {
-    public static void testWriter(String logPath, LinkedHashMap<Long, Double> data){
+    public static void testWriter(String logPath, LinkedHashMap<Long, Double> data, int run){
 
-        Path toSave = Paths.get(logPath+"/test.csv");
+        Path toSave = Paths.get(logPath+"/test_"+run+".csv");
         List<String> lines = new ArrayList<String>();
         try {
             for (Map.Entry<Long, Double> e : data.entrySet()) {

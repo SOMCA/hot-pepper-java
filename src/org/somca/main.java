@@ -2,7 +2,7 @@
  * Hot-Pepper - Energy Measurements
  *     Copyright (C)  2016   Université du Québec à Montréal (UQAM) -  INRIA  - University of Lille
  *
- *     Authors: Mehdi Ait younes <overpex@gmail.com>
+ *     Authors: Mehdi Ait younes (overpex) <overpex@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -20,22 +20,26 @@
 
 package org.somca;
 
-import com.yoctopuce.YoctoAPI.YAPI_Exception;
 import org.somca.adb.AdbWrapper;
-import org.somca.api.CsvUtils;
-import org.somca.api.YoctoDevice;
+import org.somca.adb.Device;
+import org.somca.utils.CsvUtils;
+import org.somca.utils.YoctoDevice;
 import org.somca.scenarios.CalabashScenarios;
+import org.somca.server.NagaViper;
+
+import java.io.IOException;
+
 import static java.lang.System.exit;
 
 public class main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
 
         int nRun = 1;
 
         String argScenarioPath = "$SCENARIOS_PATH";
         String argApkPath = "$APK_PATH";
 
-        // ADB init ...
+        // ADB init
         AdbWrapper adbInstance = new AdbWrapper();
 
         // Use root communication
@@ -47,39 +51,43 @@ public class main {
         Thread.sleep(500);
         System.out.println("ADB charge disabled !");
 
-        // Server Running ...
+        // TODO : Not good, change this !!! (Actually, we just have one device)
+        Device device = adbInstance.getDevices().get(0);
+
+        // Yocto-amp init
+        YoctoDevice myYocto = new YoctoDevice();
+
+        // Start Naga Viper Server
+        NagaViper nagaServer = new NagaViper(myYocto, device);
+        nagaServer.start();
 
         while (nRun != 0) {
-            YoctoDevice myYocto = new YoctoDevice();
-            Thread scThread = new Thread(new CalabashScenarios(argScenarioPath, argApkPath, myYocto));
+            // Init the Calabash Scenarios Thread
+            Thread scThread = new Thread(new CalabashScenarios(argScenarioPath, argApkPath));
 
-            // Run Calabash Thread and Yocto measurements
             try {
                 // Calabash-Android
                 scThread.start();
 
-                // Measurement
-                myYocto.run();
-
                 scThread.join();
-            } catch (YAPI_Exception e) {
-                e.printStackTrace();
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            // The Yocto measurements is stopped on the CalabashScenarios class
             System.out.println("Run end");
+            //System.out.println("Measurement saving on ");
+            Thread.sleep(8000);
 
-            // Csv saving ...
-            CsvUtils.testWriter(argScenarioPath,myYocto.getMeasurementData());
+            // Csv saving
+            CsvUtils.testWriter(argScenarioPath, nagaServer.getLastMeasurementsData(), nRun);
 
             nRun--;
         }
 
-        adbInstance.chargeSwitch(0);
+        adbInstance.chargeSwitch(1);
         Thread.sleep(500);
-        System.out.println("ADB charge disabled !");
+        System.out.println("ADB charge re-enabled !");
 
         System.out.println("Experiments finished");
         exit(0);

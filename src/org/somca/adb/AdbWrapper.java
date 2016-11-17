@@ -36,7 +36,7 @@ public class AdbWrapper {
     private Process pr;
     public final static String ANDROID_HOME_ENV = System.getenv("ANDROID_HOME");
 
-    // The devices list.
+    // Devices list.
     private List<Device> devicesConnected;
     // The current device used for the adb communication.
     private Device deviceOnUse;

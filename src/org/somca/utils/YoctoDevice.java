@@ -2,7 +2,7 @@
  * Hot-Pepper - Energy Measurements
  *     Copyright (C)  2016   Université du Québec à Montréal (UQAM) -  INRIA  - University of Lille
  *
- *     Authors: Mehdi Ait younes <overpex@gmail.com>
+ *     Authors: Mehdi Ait younes (overpex) <overpex@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -18,11 +18,9 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.somca.api;
+package org.somca.utils;
 
 import com.yoctopuce.YoctoAPI.*;
-import java.util.Date;
-import java.util.LinkedHashMap;
 
 public class YoctoDevice {
 
@@ -32,10 +30,6 @@ public class YoctoDevice {
     private String deviceName;
     private String deviceSerialNum;
     private String dcSerial;
-
-    public LinkedHashMap<Long,Double> measurementData;
-    private boolean isFinished = false;
-    private long initTime;
 
     public YoctoDevice(){
         try {
@@ -76,7 +70,7 @@ public class YoctoDevice {
     /*
     Run the measures
      */
-    public void run() throws YAPI_Exception {
+    /*public void run() throws YAPI_Exception {
         measurementData = new LinkedHashMap<Long, Double>();
         YCurrent dcCurrent = YCurrent.FindCurrent(dcSerial);
         initTime = new Date().getTime();
@@ -88,15 +82,50 @@ public class YoctoDevice {
             YAPI.Sleep(100);
         }
         System.out.print("Measurements "+ConsoleColor.GREEN+"[Done]\n"+ConsoleColor.RESET);
-    }
+    }*/
 
     /*
     Stop the measurement
      */
-    public void setFinished(){this.isFinished = true;}
 
-    public LinkedHashMap<Long, Double> getMeasurementData() {
-        return measurementData;
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public YCurrent getYoctoCurrent() {
+        return yoctoCurrent;
+    }
+
+    public void setYoctoCurrent(YCurrent yoctoCurrent) {
+        this.yoctoCurrent = yoctoCurrent;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    public String getDeviceSerialNum() {
+        return deviceSerialNum;
+    }
+
+    public void setDeviceSerialNum(String deviceSerialNum) {
+        this.deviceSerialNum = deviceSerialNum;
+    }
+
+    public String getDcSerial() {
+        return dcSerial;
+    }
+
+    public void setDcSerial(String dcSerial) {
+        this.dcSerial = dcSerial;
     }
 
     public String toString(){
