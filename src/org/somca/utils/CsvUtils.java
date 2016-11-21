@@ -30,7 +30,7 @@ import java.util.*;
 public class CsvUtils {
     public static void testWriter(String logPath, LinkedHashMap<Long, Double> data, int run){
 
-        Path toSave = Paths.get(logPath+"/test_"+run+".csv");
+        Path toSave = Paths.get(logPath+"/measurement_run_"+run+".csv");
         List<String> lines = new ArrayList<String>();
         try {
             for (Map.Entry<Long, Double> e : data.entrySet()) {
@@ -42,6 +42,5 @@ public class CsvUtils {
             e.printStackTrace();
         }
         System.out.println("CSV Generated !");
-
     }
 }
