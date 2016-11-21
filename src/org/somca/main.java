@@ -34,9 +34,10 @@ import static java.lang.System.exit;
 public class main {
     public static void main(String[] args) throws InterruptedException, IOException {
 
-        int nRun = 1;
+        int totalRun = 2;
+        int nRun = 0;
 
-        String argScenarioPath = "$SCENARIOS_PATH";
+        String argScenarioPath = "$SCENARIO_PATH";
         String argApkPath = "$APK_PATH";
 
         // ADB init
@@ -46,10 +47,10 @@ public class main {
         adbInstance.asRoot();
         Thread.sleep(500);
 
-        // Turn charge off
-        adbInstance.chargeSwitch(0);
+        adbInstance.chargeSwitch(0); // Turn off the charge
         Thread.sleep(500);
         System.out.println("ADB charge disabled !");
+
 
         // TODO : Not good, change this !!! (Actually, we just have one device)
         Device device = adbInstance.getDevices().get(0);
@@ -61,31 +62,29 @@ public class main {
         NagaViper nagaServer = new NagaViper(myYocto, device);
         nagaServer.start();
 
-        while (nRun != 0) {
+        while (nRun < totalRun) {
             // Init the Calabash Scenarios Thread
-            Thread scThread = new Thread(new CalabashScenarios(argScenarioPath, argApkPath));
+            Thread scThread = new Thread(new CalabashScenarios(argScenarioPath, argApkPath, nRun));
 
             try {
-                // Calabash-Android
-                scThread.start();
+                System.out.println("Calabash-Android started ...");
 
+                scThread.start();
                 scThread.join();
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            System.out.println("Run end");
-            //System.out.println("Measurement saving on ");
-            Thread.sleep(8000);
-
             // Csv saving
             CsvUtils.testWriter(argScenarioPath, nagaServer.getLastMeasurementsData(), nRun);
+            Thread.sleep(5000);
+            System.out.println("Run "+nRun+" end");
 
-            nRun--;
+            nRun++;
         }
 
-        adbInstance.chargeSwitch(1);
+        adbInstance.chargeSwitch(1); // Re-enable the charge
         Thread.sleep(500);
         System.out.println("ADB charge re-enabled !");
 

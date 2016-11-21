@@ -67,27 +67,6 @@ public class YoctoDevice {
         }
     }
 
-    /*
-    Run the measures
-     */
-    /*public void run() throws YAPI_Exception {
-        measurementData = new LinkedHashMap<Long, Double>();
-        YCurrent dcCurrent = YCurrent.FindCurrent(dcSerial);
-        initTime = new Date().getTime();
-        for (;;) {
-            long tmpTime = new Date().getTime() - initTime;
-            System.out.println(String.format("Time %s, Value %s", tmpTime, dcCurrent.get_currentValue()));
-            measurementData.put(tmpTime,dcCurrent.get_currentValue());
-            if (isFinished) break;
-            YAPI.Sleep(100);
-        }
-        System.out.print("Measurements "+ConsoleColor.GREEN+"[Done]\n"+ConsoleColor.RESET);
-    }*/
-
-    /*
-    Stop the measurement
-     */
-
     public String getDeviceId() {
         return deviceId;
     }

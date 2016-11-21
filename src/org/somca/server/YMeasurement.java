@@ -40,9 +40,7 @@ public class YMeasurement extends Thread{
     private Socket calabashClient;
     private NagaViper serverInstance;
 
-    public LinkedHashMap<Long,Double> measurementData;
-    private long initTime;
-    private boolean isFinished = false;
+    private LinkedHashMap<Long,Double> measurementData;
 
     public YMeasurement (Socket client, YoctoDevice amp, Device device, NagaViper naga) {
         this.calabashClient = client;
@@ -53,50 +51,37 @@ public class YMeasurement extends Thread{
 
     @Override
     public void run() {
-        System.out.println(String.format("SERVER - Address :%s", calabashClient.getRemoteSocketAddress()));
+        System.out.println(String.format("Client - Address :%s", calabashClient.getRemoteSocketAddress()));
 
         // Buffer size 1KB
         byte[] buffer = new byte[1024];
-        int read = 0;
+        int read = -1;
+
+        System.out.println("Waiting for orders ...");
+        TMeasurement measure = new TMeasurement(yocto);
 
         try {
-            while ((read = calabashClient.getInputStream().read(buffer)) > 0) {
+            while ((read = calabashClient.getInputStream().read(buffer)) > -1) {
                 String signal = clientDataRead(buffer,read);
-                switch (signal){
-                    case "START" :
-                        System.out.println("Calabash Start");
-                        startMeasurements();
-                        break;
 
-                    case "END" :
-                        setFinished();
-                        System.out.print("Measurements "+ ConsoleColor.GREEN+"[Done]\n"+ConsoleColor.RESET);
+                if(signal.equals("STARTED"))
+                {
+                    System.out.println("Measurement Started");
+                    measure.start();
+                } else if (signal.equals("END"))
+                {
+                    measure.setFinished();
+                    System.out.print("Measurements "+ ConsoleColor.GREEN+"[Done]\n"+ConsoleColor.RESET);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        System.out.println("Saving Measurements ....");
+
         // Save the measurement data to the server.
         serverInstance.getMeasurementsData().add(measurementData);
-        System.exit(0);
-    }
-
-    private void startMeasurements(){
-        measurementData = new LinkedHashMap<Long, Double>();
-        YCurrent dcCurrent = YCurrent.FindCurrent(yocto.getDcSerial());
-        initTime = new Date().getTime();
-        for (;;) {
-            long tmpTime = new Date().getTime() - initTime;
-            try {
-                System.out.println(String.format("Time %s, Value %s", tmpTime, dcCurrent.get_currentValue()));
-                measurementData.put(tmpTime,dcCurrent.get_currentValue());
-            } catch (YAPI_Exception e) {
-                e.printStackTrace();
-            }
-            if (isFinished) break;
-            //YAPI.Sleep(100);
-        }
     }
 
     public String clientDataRead(byte[] buffer, int size)
@@ -112,9 +97,40 @@ public class YMeasurement extends Thread{
         }
     }
 
-    public void setFinished(){this.isFinished = true;}
+    public LinkedHashMap<Long, Double> getMeasurementData() {return measurementData;}
 
-    public LinkedHashMap<Long, Double> getMeasurementData() {
-        return measurementData;
+    /**
+     * TODO : Change the measurement way (avoid the inner class)
+     * The TMeasurement class allow the async run of the measurement method
+     * (implemented on the run's method
+     */
+    private class TMeasurement extends Thread
+    {
+        private YoctoDevice yocto;
+
+        private long initTime;
+        private boolean isFinished;
+
+        public TMeasurement (YoctoDevice amp) {this.yocto = amp;}
+
+        @Override
+        public void run() {
+            measurementData = new LinkedHashMap<Long, Double>();
+            YCurrent dcCurrent = YCurrent.FindCurrent(yocto.getDcSerial());
+            initTime = new Date().getTime();
+            for (;;) {
+                long tmpTime = new Date().getTime() - initTime;
+                try {
+                    System.out.println(String.format("Time %s, Value %s", tmpTime, dcCurrent.get_currentValue()));
+                    //YAPI.Sleep(100);
+                    measurementData.put(tmpTime,dcCurrent.get_currentValue());
+                } catch (YAPI_Exception e) {
+                    e.printStackTrace();
+                }
+                if (isFinished) break;
+            }
+        }
+
+        public void setFinished(){this.isFinished = true;}
     }
 }

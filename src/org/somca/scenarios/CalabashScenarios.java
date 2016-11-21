@@ -37,22 +37,27 @@ public class CalabashScenarios implements Runnable{
     private String appPath;
     private String logPath;
 
+    private int nRun;
 
-    public CalabashScenarios(String path, String app){
+
+    public CalabashScenarios(String path, String app, int run){
         this.scenariosPath = path;
         this.appPath = app;
+        this.nRun = run;
+
+        //TODO: Check if the dir exist
         this.logPath = scenariosPath+"/logtest";
     }
 
     // Write log file
     private void logger(List<String> lines) {
-        Path toSave = Paths.get(logPath+"/test.txt");
+        Path toSave = Paths.get(logPath+"/log_run_"+nRun+".txt");
         try {
             Files.write(toSave, lines, Charset.defaultCharset());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Log file generated");
+        System.out.println("Log file generated for the "+nRun+" run");
 
     }
 
@@ -62,7 +67,7 @@ public class CalabashScenarios implements Runnable{
             Runtime rt = Runtime.getRuntime();
             Process pr = rt.exec("bundle exec calabash-android run " + appPath,
                     null,
-                    new File(scenariosPath));
+                    new File(scenariosPath)); // position on the calabash path
 
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 
@@ -72,7 +77,7 @@ public class CalabashScenarios implements Runnable{
                 lines.add(line);
             }
 
-            // Add the code
+            // Add the exit code
             lines.add(String.format("Calabash process exit code : %s", pr.waitFor()));
             logger(lines);
 
