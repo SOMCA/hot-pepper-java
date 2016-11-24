@@ -35,7 +35,7 @@ public class CalabashScenarios implements Runnable{
 
     private String scenariosPath;
     private String appPath;
-    private String logPath;
+    private File logPath;
 
     private int nRun;
 
@@ -45,13 +45,17 @@ public class CalabashScenarios implements Runnable{
         this.appPath = app;
         this.nRun = run;
 
-        //TODO: Check if the dir exist
-        this.logPath = scenariosPath+"/logtest";
+        this.logPath = new File(scenariosPath+"/logtest");
+        if(!logPath.exists())
+        {
+            logPath.mkdir();
+            System.out.println("Calabash log tests directory created on : " + logPath.getAbsolutePath());
+        }
     }
 
     // Write log file
     private void logger(List<String> lines) {
-        Path toSave = Paths.get(logPath+"/log_run_"+nRun+".txt");
+        Path toSave = Paths.get(logPath.getAbsolutePath()+"/log_run_"+nRun+".txt");
         try {
             Files.write(toSave, lines, Charset.defaultCharset());
         } catch (IOException e) {
