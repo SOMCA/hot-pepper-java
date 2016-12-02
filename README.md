@@ -1,23 +1,34 @@
 # Hot-pepper-java
-This is a java version of Hot-pepper framework.
+An automated test bench for asses the power consumption of Android apps (Java version).
 
 Additional features
 -------------------
 
-* Rewrite with a static language, more robust and efficient
+* Rewrite with a strong typing language, more robust and efficient
 * Easy communication with Spoon processors
 * ...
 
 Packages
 --------
 
-* **hub/** : 
-* **org.somca.yoctamp** : 
+* **hub/** : Virtual Hub platform installer
+* **org.somca.adb** : The Android device bridge wrapper (for the communication with the phone device)
+* **org.somca.scenarios** : User's scenarios support
+* **org.somca.server** : Naga Viper Server
+* **org.somca.utils** : Utils for the hole project
 
-Configuration
--------------
+Environment
+-----------
+You need to add your sdk location into the **ANDROID_HOME** var<br />
+``` export ANDROID_HOME=.../sdk/android-sdk-linux ```<br /><br />
+Calabash-Android for the user's scenarios test<br />
+[Calabash-Android](https://github.com/calabash/calabash-android) <br />
+Note that if you use Calabash-Android, you will need to add the **INTERNET** permission to your app <br />
+```<uses-permission android:name="android.permission.INTERNET" />```<br /><br />
+Java version : Java 1.8 (JDK 8)<br /><br />
 
-* Yon need to get the yoctoAPI.jar from [yoctopuce](http://www.yoctopuce.com/EN/products/usb-environmental-sensors/yocto-voc)
+Virtual Hub Configuration
+-------------------------
 * As Java dose not allow direct access to the hardware, you'll need to setup a Virtual Hub on the computer where Hot-pepper is used.
 
 ## Virtual Hub installation(Windows)
@@ -40,6 +51,10 @@ Configuration
  Copy the **51-yoctopuce_all.rules** from **udev_conf** folder of the archive to **/etc/udev/rules.d/**<br />
  ``` cp udev_conf/1-yoctopuce_all.rules /etc/udev/rules.d/```<br /><br />
  Restart the system.
+ 
+Run Hot-Pepper
+--------------
+...
 
 Credits
 -------
