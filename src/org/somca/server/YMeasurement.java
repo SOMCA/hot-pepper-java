@@ -66,12 +66,12 @@ public class YMeasurement extends Thread{
 
                 if(signal.equals("STARTED"))
                 {
-                    System.out.println("Measurement Started");
                     measure.start();
+                    System.out.println("Measurement Started");
                 } else if (signal.equals("END"))
                 {
-                    measure.setFinished();
                     System.out.print("Measurements "+ ConsoleColor.GREEN+"[Done]\n"+ConsoleColor.RESET);
+                    measure.setFinished();
                 }
             }
         } catch (IOException e) {

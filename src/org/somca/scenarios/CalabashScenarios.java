@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CalabashScenarios implements Runnable{
+public class CalabashScenarios implements Runnable, SimpleLogger{
 
     private String scenariosPath;
     private String appPath;
@@ -53,18 +53,6 @@ public class CalabashScenarios implements Runnable{
         }
     }
 
-    // Write log file
-    private void logger(List<String> lines) {
-        Path toSave = Paths.get(logPath.getAbsolutePath()+"/log_run_"+nRun+".txt");
-        try {
-            Files.write(toSave, lines, Charset.defaultCharset());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Log file generated for the "+nRun+" run");
-
-    }
-
     @Override
     public void run() {
         try {
@@ -83,11 +71,23 @@ public class CalabashScenarios implements Runnable{
 
             // Add the exit code
             lines.add(String.format("Calabash process exit code : %s", pr.waitFor()));
-            logger(lines);
+            logGenerator(lines);
 
         } catch(Exception e) {
             System.out.println(e.toString());
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void logGenerator(List<String> lines) {
+        Path toSave = Paths.get(logPath.getAbsolutePath()+"/log_run_"+nRun+".txt");
+        try {
+            Files.write(toSave, lines, Charset.defaultCharset());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Log file generated for the "+nRun+" run");
+
     }
 }
