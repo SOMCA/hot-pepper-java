@@ -20,6 +20,8 @@
 
 package org.sfl.scenarios;
 
+import com.sun.istack.internal.Nullable;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +42,14 @@ public class CalabashScenarios implements Runnable, SimpleLogger{
     private int nRun;
 
 
-    public CalabashScenarios(String path, String app, int run){
+    public CalabashScenarios(String path, String app, int run, @Nullable String outputLog){
         this.scenariosPath = path;
         this.appPath = app;
         this.nRun = run;
 
-        this.logPath = new File(scenariosPath+"/logtest");
+        if (outputLog != null) this.logPath = new File(outputLog+"/Calabash_Log_Test");
+        else this.logPath = new File(scenariosPath+"/Calabash_Log_Test");
+
         if(!logPath.exists())
         {
             logPath.mkdir();

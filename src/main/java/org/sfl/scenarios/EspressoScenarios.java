@@ -21,16 +21,93 @@
 
 package org.sfl.scenarios;
 
+import org.sfl.adb.AdbWrapper;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EspressoScenarios implements Runnable, SimpleLogger{
+
+    private String apkPath;
+    private String testPackageName;
+    private String outputDir;
+    private File logPath;
+
+    private int nRun;
+
+    public EspressoScenarios(String apk, String testName, int run, String output)
+    {
+        this.apkPath = apk;
+        this.testPackageName = testName;
+        this.outputDir = output;
+        this.nRun = run;
+
+        this.logPath = new File(outputDir+"/Espresso_Log_Test");
+        if(!logPath.exists())
+        {
+            logPath.mkdir();
+            System.out.println("Espresso log tests directory created on : " + logPath.getAbsolutePath());
+        }
+    }
+
+    public void apkInstallation()
+    {
+        // Stop the test process if it exist
+        // adb shell am force-stop com.example.overpex.espressoapp (test name package)
+
+        // push the test apk on the device
+        // adb push ../app-debug-androidTest.apk /data/local/tmp/com.example.overpex.espressoapp.test
+
+        // Install the test application
+        // adb shell pm install -r "/data/local/tmp/com.example.overpex.espressoapp.test"
+    }
+
     @Override
     public void run() {
+
+        // Run the instrumentation test
+        //adb shell am instrument -w -r -e debug false com.example.overpex.espressoapp.test/android.support.test.runner.AndroidJUnitRunner
+
+        try {
+            Runtime rt = Runtime.getRuntime();
+            //Process pr = rt.exec("bundle exec calabash-android run " + appPath);
+            Process pr = rt.exec(String.format("%sadb shell am instrument -w -r -e debug false com.example.overpex.espressoapp.test/android.support.test.runner.AndroidJUnitRunner", AdbWrapper.sdkPlatformTools));
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+
+            String line=null;
+            List<String> lines = new ArrayList<String>();
+            while((line=input.readLine()) != null) {
+                lines.add(line);
+            }
+
+            // Add the exit code
+            lines.add(String.format("Espresso process exit code : %s", pr.waitFor()));
+            logGenerator(lines);
+
+        } catch(Exception e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
 
     }
 
     @Override
     public void logGenerator(List<String> lines) {
-
+        Path toSave = Paths.get(logPath.getAbsolutePath()+"/log_run_"+nRun+".txt");
+        try {
+            Files.write(toSave, lines, Charset.defaultCharset());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Log file generated for the "+nRun+" run");
     }
 }

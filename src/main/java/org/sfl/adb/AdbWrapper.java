@@ -38,7 +38,7 @@ public class AdbWrapper {
     // The current device used for the adb communication.
     private Device deviceOnUse;
     private List<String> processOutput;
-    private static String sdkPlatformTools = ANDROID_HOME_ENV+"/platform-tools/";
+    public static String sdkPlatformTools = ANDROID_HOME_ENV+"/platform-tools/";
 
     /*
     * By default, when the AdbWrapper object is created the adb server start automatically.

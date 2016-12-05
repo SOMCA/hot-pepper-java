@@ -26,6 +26,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.sfl.adb.AdbWrapper;
 import org.sfl.adb.Device;
+import org.sfl.scenarios.EspressoScenarios;
 import org.sfl.utils.CsvUtils;
 import org.sfl.utils.YoctoDevice;
 import org.sfl.scenarios.CalabashScenarios;
@@ -47,11 +48,19 @@ public class main {
 
         int nRun = 0;
 
+        // ADB init
+        AdbWrapper adbInstance = new AdbWrapper();
+
+        /*
+
+        Thread ess = new Thread(new EspressoScenarios(currentArg.getString("logOutput")));
+        ess.start();
+        ess.join();
+
         // Just for tests, must be removed or commented before tests bench
         System.exit(0);
 
-        // ADB init
-        AdbWrapper adbInstance = new AdbWrapper();
+         */
 
         // Use root communication
         adbInstance.asRoot();
@@ -74,7 +83,7 @@ public class main {
 
         while (nRun < totalRun) {
             // Init the Calabash Scenarios Thread
-            Thread scThread = new Thread(new CalabashScenarios(argScenarioPath, argApkPath, nRun));
+            Thread scThread = new Thread(new CalabashScenarios(argScenarioPath, argApkPath, nRun, null));
 
             try {
                 System.out.println("Calabash-Android started ...");
@@ -126,6 +135,13 @@ public class main {
 
         parser.addArgument("-sp", "--scenariosPath")
                 .help("Set the location path of your scenarios");
+
+        parser.addArgument("-o", "--output")
+                .help("Set the location path of measurements test");
+
+        parser.addArgument("-lo", "--logOutput")
+                .help("Set the location path of the scenarios log path");
+
 
         try {
             ns = parser.parseArgs(args);
