@@ -1,35 +1,35 @@
 /**
- * Hot-Pepper - Energy Measurements
- *     Copyright (C)  2016   Université du Québec à Montréal (UQAM) -  INRIA  - University of Lille
+ *  Copyright (C) 2014-2016 Savoir-faire Linux Inc.
  *
- *     Authors: Mehdi Ait younes (overpex) <overpex@gmail.com>
+ *  Author : Mehdi Ait-Younes (overpex) <overpex@gmail.com>
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as
- *     published by the Free Software Foundation, either version 3 of the
- *     License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.
  */
 
-package org.somca;
+package org.sfl;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.somca.adb.AdbWrapper;
-import org.somca.adb.Device;
-import org.somca.utils.CsvUtils;
-import org.somca.utils.YoctoDevice;
-import org.somca.scenarios.CalabashScenarios;
-import org.somca.server.NagaViper;
+import org.sfl.adb.AdbWrapper;
+import org.sfl.adb.Device;
+import org.sfl.utils.CsvUtils;
+import org.sfl.utils.YoctoDevice;
+import org.sfl.scenarios.CalabashScenarios;
+import org.sfl.server.NagaViper;
 
 import java.io.IOException;
 
@@ -47,6 +47,7 @@ public class main {
 
         int nRun = 0;
 
+        // Just for tests, must be removed or commented before tests bench
         System.exit(0);
 
         // ADB init
