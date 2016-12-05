@@ -42,8 +42,8 @@ public class main {
         argsCheck(currentArg); // Argument check
 
         int totalRun = currentArg.get("nrun");
-        String argScenarioPath = currentArg.getString("apk");
-        String argApkPath = currentArg.getString("scenariosPath");
+        String argScenarioPath = currentArg.getString("scenariosPath");
+        String argApkPath = currentArg.getString("apk");
 
         int nRun = 0;
 
