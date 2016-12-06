@@ -60,14 +60,30 @@ public class EspressoScenarios implements Runnable, SimpleLogger{
 
     public void apkInstallation()
     {
-        // Stop the test process if it exist
-        // adb shell am force-stop com.example.overpex.espressoapp (test name package)
+        Runtime rt = Runtime.getRuntime();
+        try {
+            // Stop the test process if it exist
+            // adb shell am force-stop com.example.overpex.espressoapp (test name package)
+            Process pr = rt.exec(String.format("%sadb shell am force-stop %s", AdbWrapper.sdkPlatformTools, testPackageName));
+            System.out.println("Stop the process of the previous test");
+            pr.waitFor();
 
-        // push the test apk on the device
-        // adb push ../app-debug-androidTest.apk /data/local/tmp/com.example.overpex.espressoapp.test
+            // push the test apk on the device
+            // adb push ../app-debug-androidTest.apk /data/local/tmp/com.example.overpex.espressoapp.test
+            pr = rt.exec(String.format("%sadb push %s /data/local/tmp/%s.test", AdbWrapper.sdkPlatformTools, apkPath,testPackageName));
+            System.out.println("Pushing the test app on the device ...");
+            pr.waitFor();
 
-        // Install the test application
-        // adb shell pm install -r "/data/local/tmp/com.example.overpex.espressoapp.test"
+            // Install the test application
+            // adb shell pm install -r "/data/local/tmp/com.example.overpex.espressoapp.test"
+            pr = rt.exec(String.format("%sadb shell pm install -r \"/data/local/tmp/%s.test\"", AdbWrapper.sdkPlatformTools,testPackageName));
+            System.out.println("Pushing the test app on the device ...");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
