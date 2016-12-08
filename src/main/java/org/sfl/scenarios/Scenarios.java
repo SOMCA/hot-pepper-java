@@ -22,6 +22,9 @@ package org.sfl.scenarios;
 
 import java.util.List;
 
-public interface SimpleLogger {
-    void logGenerator(List<String> lines);
+public abstract class Scenarios implements Runnable{
+    protected List<String> logScenarios;
+
+    void logGenerator(int run){}
+
 }

@@ -27,6 +27,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.sfl.adb.AdbWrapper;
 import org.sfl.adb.Device;
 import org.sfl.scenarios.EspressoScenarios;
+import org.sfl.scenarios.Scenarios;
+import org.sfl.scenarios.ScenariosFactory;
 import org.sfl.utils.CsvUtils;
 import org.sfl.utils.YoctoDevice;
 import org.sfl.scenarios.CalabashScenarios;
@@ -46,21 +48,19 @@ public class main {
         String argScenarioPath = currentArg.getString("scenariosPath");
         String argApkPath = currentArg.getString("apk");
 
+        String outData = currentArg.getString("output");
+        String outLog = currentArg.getString("logOutput");
+
+        String scType = currentArg.getString("scenariosType");
+
         int nRun = 0;
+        String [] argInstance = {argApkPath, argScenarioPath, String.valueOf(totalRun), outLog};
 
         // ADB init
         AdbWrapper adbInstance = new AdbWrapper();
 
-        /*
-
-        Thread ess = new Thread(new EspressoScenarios(currentArg.getString("logOutput")));
-        ess.start();
-        ess.join();
-
-        // Just for tests, must be removed or commented before tests bench
-        System.exit(0);
-
-         */
+        ScenariosFactory scenariosInstance = new ScenariosFactory();
+        Scenarios sc = scenariosInstance.scenariosInstance(scType, argInstance);
 
         // Use root communication
         adbInstance.asRoot();
@@ -69,7 +69,6 @@ public class main {
         adbInstance.chargeSwitch(0); // Turn off the charge
         Thread.sleep(500);
         System.out.println("ADB charge disabled !");
-
 
         // TODO : Not good, change this !!! (Actually, we just have one device)
         Device device = adbInstance.getDevices().get(0);
@@ -81,12 +80,11 @@ public class main {
         NagaViper nagaServer = new NagaViper(myYocto, device);
         nagaServer.start();
 
-        while (nRun < totalRun) {
-            // Init the Calabash Scenarios Thread
-            Thread scThread = new Thread(new CalabashScenarios(argScenarioPath, argApkPath, nRun, null));
 
+        while (nRun < totalRun) {
+            Thread scThread = new Thread(sc);
             try {
-                System.out.println("Calabash-Android started ...");
+                System.out.println("Scenarios started ...");
 
                 scThread.start();
                 scThread.join();
@@ -96,7 +94,16 @@ public class main {
             }
 
             // Csv saving
-            CsvUtils.testWriter(argScenarioPath, nagaServer.getLastMeasurementsData(), nRun);
+            CsvUtils.testWriter(outData, nagaServer.getLastMeasurementsData(), nRun);
+
+            // Log generation
+            if(scType.equals("Calabash")){
+                ((CalabashScenarios) sc).logGenerator(nRun);
+            }
+            else if(scType.equals("Espresso")){
+                ((EspressoScenarios)sc).logGenerator(nRun);
+            }
+
             Thread.sleep(5000);
             System.out.println("Run "+nRun+" end");
 
@@ -129,12 +136,17 @@ public class main {
                 .help("Set the location of your apk subject");
 
         parser.addArgument("-st", "--scenariosType")
-                .setDefault("Calabash")
+                .required(true)
                 .choices("Calabash", "Espresso","Monkey")
                 .help("Set the framework test type");
 
+        // Calabash
         parser.addArgument("-sp", "--scenariosPath")
                 .help("Set the location path of your scenarios");
+
+        // Espresso
+        parser.addArgument("-pn", "--packageTest")
+                .help("Set the of your package test app name");
 
         parser.addArgument("-o", "--output")
                 .help("Set the location path of measurements test");
@@ -156,6 +168,11 @@ public class main {
     public static void argsCheck(Namespace ns)
     {
         if(ns.getString("scenariosType").equals("Calabash") && ns.getString("scenariosPath") == null){
+            System.err.println("Scenarios type is set to Calabash," +
+                    " you must specified a Calabash project path with the -sp command");
+            System.exit(1);
+        }
+        else if(ns.getString("scenariosType").equals("Espresso") && ns.getString("packageTest") == null){
             System.err.println("Scenarios type is set to Calabash," +
                     " you must specified a Calabash project path with the -sp command");
             System.exit(1);

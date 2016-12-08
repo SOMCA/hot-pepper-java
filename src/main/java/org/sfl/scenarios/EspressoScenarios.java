@@ -32,9 +32,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-public class EspressoScenarios implements Runnable, SimpleLogger{
+public class EspressoScenarios extends Scenarios implements Runnable {
 
     private String apkPath;
     private String testPackageName;
@@ -42,6 +44,8 @@ public class EspressoScenarios implements Runnable, SimpleLogger{
     private File logPath;
 
     private int nRun;
+    private LinkedHashMap<String, List<String>> outProcess = new LinkedHashMap<>();
+
 
     public EspressoScenarios(String apk, String testName, int run, String output)
     {
@@ -56,6 +60,8 @@ public class EspressoScenarios implements Runnable, SimpleLogger{
             logPath.mkdir();
             System.out.println("Espresso log tests directory created on : " + logPath.getAbsolutePath());
         }
+
+        apkInstallation();
     }
 
     public void apkInstallation()
@@ -65,19 +71,20 @@ public class EspressoScenarios implements Runnable, SimpleLogger{
             // Stop the test process if it exist
             // adb shell am force-stop com.example.overpex.espressoapp (test name package)
             Process pr = rt.exec(String.format("%sadb shell am force-stop %s", AdbWrapper.sdkPlatformTools, testPackageName));
-            System.out.println("Stop the process of the previous test");
             pr.waitFor();
+            processOutput(pr, "Process stop");
 
             // push the test apk on the device
             // adb push ../app-debug-androidTest.apk /data/local/tmp/com.example.overpex.espressoapp.test
             pr = rt.exec(String.format("%sadb push %s /data/local/tmp/%s.test", AdbWrapper.sdkPlatformTools, apkPath,testPackageName));
-            System.out.println("Pushing the test app on the device ...");
             pr.waitFor();
+            processOutput(pr, "APK push");
 
             // Install the test application
             // adb shell pm install -r "/data/local/tmp/com.example.overpex.espressoapp.test"
-            pr = rt.exec(String.format("%sadb shell pm install -r \"/data/local/tmp/%s.test\"", AdbWrapper.sdkPlatformTools,testPackageName));
-            System.out.println("Pushing the test app on the device ...");
+            pr = rt.exec(String.format("%sadb shell pm install -r /data/local/tmp/%s.test", AdbWrapper.sdkPlatformTools,testPackageName));
+            pr.waitFor();
+            processOutput(pr, "APK installation");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -86,28 +93,46 @@ public class EspressoScenarios implements Runnable, SimpleLogger{
         }
     }
 
+    public void processOutput(Process p, String pName)
+    {
+        List<String> out = new ArrayList<>();
+        String getLine = null;
+
+        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        try {
+            while ((getLine = input.readLine()) != null) {
+                out.add(getLine);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        outProcess.put(pName, out);
+    }
+
     @Override
     public void run() {
 
         // Run the instrumentation test
         //adb shell am instrument -w -r -e debug false com.example.overpex.espressoapp.test/android.support.test.runner.AndroidJUnitRunner
 
+        apkInstallation();
+        System.out.println("APK installation and set end");
+
         try {
             Runtime rt = Runtime.getRuntime();
-            //Process pr = rt.exec("bundle exec calabash-android run " + appPath);
             Process pr = rt.exec(String.format("%sadb shell am instrument -w -r -e debug false com.example.overpex.espressoapp.test/android.support.test.runner.AndroidJUnitRunner", AdbWrapper.sdkPlatformTools));
 
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 
             String line=null;
-            List<String> lines = new ArrayList<String>();
+            logScenarios = new ArrayList<String>();
             while((line=input.readLine()) != null) {
-                lines.add(line);
+                logScenarios.add(line);
             }
 
             // Add the exit code
-            lines.add(String.format("Espresso process exit code : %s", pr.waitFor()));
-            logGenerator(lines);
+            logScenarios.add(String.format("Espresso process exit code : %s", pr.waitFor()));
 
         } catch(Exception e) {
             System.out.println(e.toString());
@@ -117,13 +142,26 @@ public class EspressoScenarios implements Runnable, SimpleLogger{
     }
 
     @Override
-    public void logGenerator(List<String> lines) {
-        Path toSave = Paths.get(logPath.getAbsolutePath()+"/log_run_"+nRun+".txt");
+    public void logGenerator(int run) {
+        List<String> toPush = new ArrayList<>();
+
+        Path toSave = Paths.get(logPath.getAbsolutePath()+"/log_run_"+run+".txt");
+        Path processToSave = Paths.get(logPath.getAbsolutePath()+"/process_set_"+run+".txt");
+
         try {
-            Files.write(toSave, lines, Charset.defaultCharset());
+            // Scenario log generation
+            Files.write(toSave, logScenarios, Charset.defaultCharset());
+
+            // Process Log generation
+            for (Map.Entry<String, List<String>> e : outProcess.entrySet())
+            {
+                String tmp = e.getKey() + " : \n" + String.join("\n", e.getValue()) + "\n";
+                toPush.add(tmp);
+            }
+
+            Files.write(processToSave, toPush, Charset.defaultCharset());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Log file generated for the "+nRun+" run");
     }
 }

@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CalabashScenarios implements Runnable, SimpleLogger{
+public class CalabashScenarios extends Scenarios implements Runnable{
 
     private String scenariosPath;
     private String appPath;
@@ -42,7 +42,7 @@ public class CalabashScenarios implements Runnable, SimpleLogger{
     private int nRun;
 
 
-    public CalabashScenarios(String path, String app, int run, @Nullable String outputLog){
+    public CalabashScenarios(String app, String path, int run, @Nullable String outputLog){
         this.scenariosPath = path;
         this.appPath = app;
         this.nRun = run;
@@ -68,14 +68,13 @@ public class CalabashScenarios implements Runnable, SimpleLogger{
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 
             String line=null;
-            List<String> lines = new ArrayList<String>();
+            logScenarios = new ArrayList<String>();
             while((line=input.readLine()) != null) {
-                lines.add(line);
+                logScenarios.add(line);
             }
 
             // Add the exit code
-            lines.add(String.format("Calabash process exit code : %s", pr.waitFor()));
-            logGenerator(lines);
+            logScenarios.add(String.format("Calabash process exit code : %s", pr.waitFor()));
 
         } catch(Exception e) {
             System.out.println(e.toString());
@@ -84,14 +83,12 @@ public class CalabashScenarios implements Runnable, SimpleLogger{
     }
 
     @Override
-    public void logGenerator(List<String> lines) {
-        Path toSave = Paths.get(logPath.getAbsolutePath()+"/log_run_"+nRun+".txt");
+    public void logGenerator(int run) {
+        Path toSave = Paths.get(logPath.getAbsolutePath()+"/log_run_"+run+".txt");
         try {
-            Files.write(toSave, lines, Charset.defaultCharset());
+            Files.write(toSave, logScenarios, Charset.defaultCharset());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Log file generated for the "+nRun+" run");
-
     }
 }

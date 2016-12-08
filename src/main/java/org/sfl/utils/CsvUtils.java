@@ -20,6 +20,8 @@
 
 package org.sfl.utils;
 
+import com.sun.istack.internal.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -28,8 +30,8 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class CsvUtils {
-    public static void testWriter(String logPath, LinkedHashMap<Long, Double> data, int run){
-
+    public static void testWriter(@Nullable  String logPath, LinkedHashMap<Long, Double> data, int run){
+        if (logPath == null) logPath = System.getProperty("user.home");
         Path toSave = Paths.get(logPath+"/measurement_run_"+run+".csv");
         List<String> lines = new ArrayList<String>();
         try {
@@ -41,6 +43,6 @@ public class CsvUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("CSV Generated !");
+        System.out.println("Measurements data saved");
     }
 }
