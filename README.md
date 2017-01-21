@@ -60,6 +60,20 @@ In order to start and stop the measurement process, you should open a TCPSocket 
 At the beginning of your scenario, you must send the message "**STARTED**" to start the measurement.
 At the end of your scenario, you must send the message "**END**" to stop the measurement.
 
+Rules
+-----
+Below are some rules that the developer must take care in order to have the must suitable environment test :
+
+* no SIM data usage during the experiments,
+* the luminosity and phone volume must be set to the lowest level,
+* no dynamic wallpaper,
+* experiments must be repeated x times,
+* if the developer wants to use an automated acceptance testing tool like Calabash, it is advisable to use the ADB connection instead of the Wifi connection (for stability issue),
+* the battery must be under 100% in order to let Naga Viper stop the battery charging before the experiments,
+* the Wifi has to be shutdown when the application doesn’t require it usage,
+* if the Wifi has to be used, the developer must assure that his internet network is stable.
+* if recommended to restart the phone after each set of run to cool down the phone. 
+
 Run Hot-Pepper
 --------------
 ```
